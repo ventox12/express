@@ -8,12 +8,28 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 //sluzyy do zrzucania logow w trybie developerskim
 var logger = require('morgan');
-//importy naszego routingu
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-
 //wywolujemy nasz server
 var app = express();
+
+//bedzie pobierala z parametru request to co dostaje serwer na wejscie, aktualny adres strony i ten adres bedziemy rpzekazywali do kazdego widoku
+//metoda next sluzy do tego ze skrypt nie zatrzyma sie na routingu, a pusci nas do pozostalych routingow
+app.use(function (req, res, next) {
+  //znajduje sie aktualny adres strony
+  // console.log(req.path);
+  //zeby moc uzywac w szablonach
+  //dzieki temu ze przkazujemy do locals, to bedziemy mieli go globalnie
+  res.locals.path = req.path
+
+  //zeby przeszedl  dalej
+  next()
+})
+
+//importy naszego routingu
+var indexRouter = require('./routes/index');
+var newsRouter = require('./routes/news');
+var quizRouter = require('./routes/quiz');
+var adminRouter = require('./routes/admin');
+
 
 // view engine setup
 //katalog z naszymi widokami
@@ -36,7 +52,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //za kazdym razem otrzymamy główny plik po jedynie sleszu
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/news', newsRouter);
+app.use('/quiz', quizRouter);
+app.use('/admin', adminRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
